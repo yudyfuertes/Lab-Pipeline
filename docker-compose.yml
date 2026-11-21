@@ -1,0 +1,27 @@
+services:
+  ollama-engine:
+    image: ollama/ollama:latest
+    container_name: ollama-rag-service
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+    restart: unless-stopped
+
+  open-webui-app:
+    image: ghcr.io/open-webui/open-webui:v0.5.20
+    container_name: open-webui-pipeline
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama-rag-service:11434
+      - WEBUI_AUTH=true
+    volumes:
+      - webui_storage:/app/backend/data
+    depends_on:
+      - ollama-engine
+    restart: unless-stopped
+
+volumes:
+  ollama_storage:
+  webui_storage:
